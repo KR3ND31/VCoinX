@@ -1,5 +1,5 @@
 @echo off
-title VKCoinX - Batch Script
+title VKСoinBot - Batch Script
 node index.js
 echo Bot was forced to exit . . .
 pause

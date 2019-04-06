@@ -105,7 +105,7 @@ vConinWS.onReceiveDataEvent(async (place, score) => {
         trsum = 3e6;
 
     miner.setScore(score);
-    setTerminalTitle("VCoinX " + getVersion() + " (id" + USER_ID.toString() +  ") > " + "top " + place + " > " + formateSCORE(score, true) + " coins.");
+    setTerminalTitle("VKCoinBot " + getVersion() + " (id" + USER_ID.toString() +  ") > " + "top " + place + " > " + formateSCORE(score, true) + " coins.");
 
     if (place > 0 && !rl.isQst) {
         if (transferPercent) {
@@ -227,14 +227,7 @@ vConinWS.onUserLoaded((place, score, items, top, firstTime, tick) => {
     con("Пользователь успешно загружен.");
     con("Скорость: " + formateSCORE(tick, true) + " коинов / тик.");
 
-    if (!advertDisp)
-    {
-        ccon("VCoinX спонсируется сайтом lolzteam.net - форум об играх и читах, хак разделы, бруты и чекеры, способы заработка и раздачи баз.", "black", "Green");
-        open("https://lolzteam.net/");
-        advertDisp = true;
-    }
-
-    setTerminalTitle("VCoinX " + getVersion() + " (id" + USER_ID.toString() +  ") > " + formateSCORE(tick, true) + " cps > " + "top " + place + " > " + formateSCORE(score, true) + " coins.");
+    setTerminalTitle("VKCoinBot " + getVersion() + " (id" + USER_ID.toString() +  ") > " + formateSCORE(tick, true) + " cps > " + "top " + place + " > " + formateSCORE(score, true) + " coins.");
 
     miner.setActive(items);
     miner.updateStack(items);
@@ -247,7 +240,7 @@ vConinWS.onUserLoaded((place, score, items, top, firstTime, tick) => {
 
 vConinWS.onBrokenEvent(_ => {
     con("Обнаружен brokenEvent, видимо сервер сломался.\n\t\tЧерез 10 секунд будет выполнен перезапуск.", true);
-    setTerminalTitle("VCoinX " + getVersion() + " (id" + USER_ID.toString() +  ") > " + "BROKEN");
+    setTerminalTitle("VKCoinBot " + getVersion() + " (id" + USER_ID.toString() +  ") > " + "BROKEN");
     xRestart = false;
 
     if (autobeep)
@@ -266,7 +259,7 @@ vConinWS.onBrokenEvent(_ => {
 
 vConinWS.onAlreadyConnected(_ => {
     con("Обнаружено открытие приложения с другого устройства.\n\t\tЧерез 30 секунд будет выполнен перезапуск.", true);
-    setTerminalTitle("VCoinX " + getVersion() + " (id" + USER_ID.toString() +  ") > " + "ALREADY_CONNECTED");
+    setTerminalTitle("VKCoinBot " + getVersion() + " (id" + USER_ID.toString() +  ") > " + "ALREADY_CONNECTED");
     if (autobeep)
         beep();
     forceRestart(3e4, true);
@@ -286,18 +279,18 @@ vConinWS.onOffline(_ => {
         updateLink();
     }
 
-    setTerminalTitle("VCoinX " + getVersion() + " (id" + USER_ID.toString() +  ") > " + "OFFLINE");
+    setTerminalTitle("VKCoinBot " + getVersion() + " (id" + USER_ID.toString() +  ") > " + "OFFLINE");
     forceRestart(2e4, true);
 });
 
 async function startBooster(tw) {
     tryStartTTL && clearTimeout(tryStartTTL);
     tryStartTTL = setTimeout(() => {
-        con("VCoinX загружается...");
+        con("VKCoinBot загружается...");
 
         vConinWS.userId = USER_ID;
         vConinWS.run(URLWS, _ => {
-            con("VCoinX загружен...");
+            con("VKCoinBot загружен...");
             xRestart = true;
         });
     }, (tw || 1e3));
@@ -306,7 +299,7 @@ async function startBooster(tw) {
 function forceRestart(t, force) {
     vConinWS.close();
     boosterTTL && clearInterval(boosterTTL);
-    setTerminalTitle("VCoinX " + getVersion() + " (id" + USER_ID.toString() +  ") > " + "RESTARTING");
+    setTerminalTitle("VKCoinBot " + getVersion() + " (id" + USER_ID.toString() +  ") > " + "RESTARTING");
     if (xRestart || force)
         startBooster(t);
 }
@@ -369,7 +362,7 @@ rl.on('line', async (line) => {
         case "start":
         case "run":
             if (vConinWS.connected)
-                return con("VCoinX уже запущен и работает!");
+                return con("VKCoinBot уже запущен и работает!");
             xRestart = true;
             startBooster();
             break;
@@ -461,6 +454,15 @@ rl.on('line', async (line) => {
 
             break;
 
+        case 'pall':
+        case 'priceall':
+        case 'pricesall':
+            temp = lPrices(false);
+            ccon("-- Все  Цены --", "red");
+            ccon(temp);
+
+            break;
+
         case 'tran':
         case 'transfer':
             let count = await rl.questionAsync("Количество: ");
@@ -484,11 +486,12 @@ rl.on('line', async (line) => {
 
         case "?":
         case "help":
-            ccon("-- VCoinX --", "red");
+            ccon("-- VKCoinBot --", "red");
             ccon("stop(pause)	- остановка майнера.");
             ccon("start(run)	- запуск майнера.");
             ccon("(b)uy	- покупка улучшений.");
             ccon("(p)rice - отображение цен на товары.");
+            ccon("pall - отображение цен на все товары.");
             ccon("tran(sfer)	- перевод игроку.");
             ccon("hideupd(ate) - скрыть уведомление об обновлении.");
             ccon("to - указать ID и включить авто-перевод средств на него.");
@@ -549,7 +552,7 @@ for (var argn = 2; argn < process.argv.length; argn++) {
         default:
             break;
     }
-    if (["-t", "-u", "-to", "-ti", "-tsum", "-autoBuyItem"].includes(process.argv[argn])) {
+    if (["-t", "-u", "-to", "-ti", "-tsum", "-autoBuyItem", "-smartBuy"].includes(process.argv[argn])) {
         argn++;
     }
 
@@ -611,7 +614,7 @@ for (var argn = 2; argn < process.argv.length; argn++) {
     }
 
     if (process.argv[argn] == '-smartBuy') {
-        smartBuy = !smartBuy;
+        smartBuy = true;
         con("Умная покупка: " + (smartBuy ? "Включена" : "Отключена"));
         autoBuy = false;
         con("Автопокупка: " + (autoBuy ? "Включена" : "Отключена"));
@@ -619,7 +622,7 @@ for (var argn = 2; argn < process.argv.length; argn++) {
     }
 
     if (process.argv[argn] == "-h" || process.argv[argn] == "-help") {
-        ccon("-- VCoinX arguments --", "red");
+        ccon("-- VKCoinBot arguments --", "red");
         ccon("-help			    - помощь.");
         ccon("-flog			    - подробные логи.");
         ccon("-tforce		    - принудительно использовать токен.");
@@ -641,7 +644,7 @@ for (var argn = 2; argn < process.argv.length; argn++) {
 function updateLink() {
     if (!DONEURL || tforce) {
         if (!VK_TOKEN) {
-            con("Отсутствует токен. Информация о его получении расположена на -> github.com/cursedseal/VCoinX", true);
+            con("Отсутствует токен. Информация о его получении расположена на -> github.com/cursedseal/VKCoinBot", true);
             return process.exit();
         }
 
