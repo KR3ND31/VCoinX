@@ -1,4 +1,4 @@
 @echo off
-title VCoinX - Packages Install
+title VKСoinBot - Packages Install
 npm i --loglevel=error
 pause
