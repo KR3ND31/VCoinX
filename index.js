@@ -105,7 +105,7 @@ vConinWS.onReceiveDataEvent(async (place, score) => {
         trsum = 3e6;
 
     miner.setScore(score);
-    setTerminalTitle("VKCoinBot " + getVersion() + " (id" + USER_ID.toString() +  ") > " + "top " + place + " > " + formateSCORE(score, true) + " coins.");
+    setTerminalTitle("VKCoinBot " + getVersion() + " (id" + USER_ID.toString() +  ") > " + formateSCORE(vConinWS.tick, true) + " s > " + "top " + place + " > " + formateSCORE(score, true) + " coins.");
 
     if (place > 0 && !rl.isQst) {
         if (transferPercent) {
@@ -121,11 +121,11 @@ vConinWS.onReceiveDataEvent(async (place, score) => {
                     await vConinWS.transferToUser(transferTo, transferScore);
                     template = "Автоматически переведено [" + formateSCORE(transferScore * 1e3, true) + "] коинов от @id" + USER_ID + " к @id" + transferTo;
                 }
+                transferLastTime = Math.floor(Date.now() / 1000);
                 con(template, "black", "Green");
                 try {
                     await infLog(template);
                 } catch (e) {}
-                transferLastTime = Math.floor(Date.now() / 1000);
             } catch (e) {
                 con("Автоматический перевод не удалася. Ошибка: " + e.message, true);
             }
@@ -227,7 +227,7 @@ vConinWS.onUserLoaded((place, score, items, top, firstTime, tick) => {
     con("Пользователь успешно загружен.");
     con("Скорость: " + formateSCORE(tick, true) + " коинов / тик.");
 
-    setTerminalTitle("VKCoinBot " + getVersion() + " (id" + USER_ID.toString() +  ") > " + formateSCORE(tick, true) + " cps > " + "top " + place + " > " + formateSCORE(score, true) + " coins.");
+    setTerminalTitle("VKCoinBot " + getVersion() + " (id" + USER_ID.toString() +  ") > " + formateSCORE(vConinWS.tick, true) + " s > " + "top " + place + " > " + formateSCORE(score, true) + " coins.");
 
     miner.setActive(items);
     miner.updateStack(items);
@@ -347,6 +347,14 @@ rl.on('line', async (line) => {
             con("Цвета " + (offColors ? "от" : "в") + "ключены. (*^.^*)", "blue");
             break;
 
+        case 'i':
+        case 'info':
+            con("Текущая версия бота: " + getVersion());
+            con("ID авторизованного пользователя: " + USER_ID.toString());
+            con("Текущее количество коинов: " + formatScore(vConinWS.confirmScore, true));
+            con("Текущая скорость: " + formatScore(vConinWS.tick, true) + " коинов / тик.\n");
+            break;
+
         case "hideupd":
         case "hideupdate":
             con("Уведомления об обновлении " + (!disableUpdates ? "скрыт" : "показан") + "ы. (*^.^*)");
@@ -401,6 +409,7 @@ rl.on('line', async (line) => {
             autoBuyItems = array;
             break;
 
+        case 'ab':
         case 'autobuy':
             autoBuy = !autoBuy;
             con("Автопокупка: " + (autoBuy ? "Включена" : "Отключена"));
@@ -408,6 +417,7 @@ rl.on('line', async (line) => {
             con("Умная покупка: " + (smartBuy ? "Включена" : "Отключена"));
             break;
 
+        case 'sb':
         case 'smartbuy':
             smartBuy = !smartBuy;
             con("Умная покупка: " + (smartBuy ? "Включена" : "Отключена"));
@@ -487,6 +497,8 @@ rl.on('line', async (line) => {
         case "?":
         case "help":
             ccon("-- VKCoinBot --", "red");
+            ccon("info - отображение основной информации.");
+            ccon("debug - отображение тестовой информации.");
             ccon("stop(pause)	- остановка майнера.");
             ccon("start(run)	- запуск майнера.");
             ccon("(b)uy	- покупка улучшений.");
@@ -497,9 +509,9 @@ rl.on('line', async (line) => {
             ccon("to - указать ID и включить авто-перевод средств на него.");
             ccon("ti - указать интервал для авто-перевода (в секундах).");
             ccon("tsum - указать сумму для авто-перевода (без запятой).");
-            ccon("autobuy - изменить статус авто-покупки.");
+            ccon("autobuy(ab) - изменить статус авто-покупки.");
             ccon("autobuyitem - указать предмет(ы) для авто-покупки.");
-            ccon("smartbuy - изменить статус умной покупки.")
+            ccon("smartbuy(sb) - изменить статус умной покупки.")
             ccon("color - изменить цветовую схему консоли.");
             break;
     }
@@ -536,6 +548,7 @@ for (var argn = 2; argn < process.argv.length; argn++) {
                 if (dTest.length > 200 && dTest.length < 255) {
                     con("Пользовательский URL включен", "blue");
                     DONEURL = dTest;
+                    argn++;
                 }
                 break;
             }
@@ -570,6 +583,7 @@ for (var argn = 2; argn < process.argv.length; argn++) {
     if (process.argv[argn] == '-tforce') {
         con("Принудительное использование токена включено.")
         tforce = true;
+        argn++;
         continue;
     }
 
